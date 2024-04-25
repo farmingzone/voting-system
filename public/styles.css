@@ -1,0 +1,19 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+#optionsContainer, #optionsList, #resultsContainer {
+    margin-top: 10px;
+}
+
+input[type="text"], select {
+    padding: 8px;
+    margin: 5px;
+    width: 300px;
+}
+
+button {
+    padding: 10px 15px;
+    cursor: pointer;
+}

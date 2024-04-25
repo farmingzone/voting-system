@@ -1,0 +1,45 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Simple Voting System</h1>
+    <div id="createPoll">
+        <h2>Create a New Poll</h2>
+        <input type="text" id="question" placeholder="Enter your question here">
+        <div id="optionsContainer">
+            <input type="text" class="option" placeholder="Option 1">
+            <input type="text" class="option" placeholder="Option 2">
+        </div>
+        <button onclick="addOption()">Add Option</button>
+        <button onclick="createPoll()">Create Poll</button>
+    </div>
+
+    <div id="voteSection">
+        <h2>Vote</h2>
+        <select id="pollsDropdown">
+            <option>Select a poll</option>
+            <!-- Poll options will be added here dynamically -->
+        </select>
+        <div id="optionsList">
+            <!-- Voting options will be added here dynamically -->
+        </div>
+        <button onclick="submitVote()">Submit Vote</button>
+    </div>
+
+    <div id="resultsSection">
+        <h2>Results</h2>
+        <button onclick="showResults()">Show Results</button>
+        <div id="resultsContainer">
+            <!-- Results will be displayed here dynamically -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
