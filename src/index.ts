@@ -59,15 +59,26 @@ app.post('/polls', (req, res) => {
 
         const pollId = this.lastID;
         const insertOptions = 'INSERT INTO options (poll_id, text, votes) VALUES (?, ?, 0)';
-        options.forEach((option: string) => {
-            db.run(insertOptions, [pollId, option], function(err) {
-                if (err) {
-                    return res.status(500).send({ message: 'Error adding options.' });
-                }
+        const promises = options.map((option: string) => {
+            return new Promise<void>((resolve, reject) => {
+                db.run(insertOptions, [pollId, option], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
             });
         });
 
-        res.status(201).send({ message: 'Poll created.', pollId: pollId });
+        Promise.all(promises)
+            .then(() => {
+                res.status(201).send({ message: 'Poll created.', pollId: pollId });
+            })
+            .catch((err) => {
+                res.status(500).send({ message: 'Error adding options.' });
+            });
+
     });
 });
 
@@ -95,16 +106,18 @@ app.post('/polls/:pollId/vote', (req, res) => {
 });
 
 // 투표 결과 조회
-app.get('/polls/:pollId/results', (req, res) => {
+app.get('/polls/:pollId/options', (req, res) => {
     const { pollId } = req.params;
     const query = 'SELECT * FROM options WHERE poll_id = ?';
-    db.all(query, [pollId], (err, results) => {
+    db.all(query, [pollId], (err, options) => {
         if (err) {
-            return res.status(500).send({ message: 'Error retrieving results.' });
+            res.status(500).send({ message: 'Error retrieving options.' });
+        } else {
+            res.status(200).send(options);
         }
-        res.status(200).send(results);
     });
 });
+
 
 // 서버 시작
 app.listen(PORT, () => {
