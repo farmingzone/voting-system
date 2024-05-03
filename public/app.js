@@ -1,111 +1,119 @@
-document.addEventListener('DOMContentLoaded', function() {
+// DOMContentLoaded 이벤트 리스너
+document.addEventListener('DOMContentLoaded', function () {
+    var _a, _b, _c, _d;
+    (_a = document.getElementById('addOptionButton')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', addOption);
+    (_b = document.getElementById('createPollButton')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', createPoll);
+    (_c = document.getElementById('submitVoteButton')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', submitVote);
+    (_d = document.getElementById('showResultsButton')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', showResults);
     loadPolls();
-
-    document.getElementById('pollsDropdown').addEventListener('change', function() {
-        const pollId = this.value;
-        loadPollOptions(pollId);
+    var pollsDropdown = document.getElementById('pollsDropdown');
+    pollsDropdown.addEventListener('change', function () {
+        var pid = pollsDropdown.value;
+        loadPollOptions(parseInt(pid));
     });
 });
-
 function addOption() {
-    const optionsContainer = document.getElementById('optionsContainer');
-    const newOption = document.createElement('input');
-    newOption.type = 'text';
-    newOption.className = 'option';
-    newOption.placeholder = `Option ${optionsContainer.children.length + 1}`;
-    optionsContainer.appendChild(newOption);
+    var optCont = document.getElementById('optionsContainer');
+    var newOpt = document.createElement('input');
+    newOpt.type = 'text';
+    newOpt.className = 'option';
+    newOpt.placeholder = "Option ".concat(optCont.children.length + 1);
+    optCont.appendChild(newOpt);
 }
-
 function loadPolls() {
     fetch('/polls')
-        .then(response => response.json())
-        .then(polls => {
-            const pollsDropdown = document.getElementById('pollsDropdown');
-            pollsDropdown.innerHTML = '<option>Select a poll</option>';
-            polls.forEach(poll => {
-                const option = document.createElement('option');
-                option.value = poll.id;
-                option.textContent = poll.question;
-                pollsDropdown.appendChild(option);
-            });
+        .then(function (resp) { return resp.json(); })
+        .then(function (polls) {
+        var pd = document.getElementById('pollsDropdown');
+        pd.innerHTML = '<option>Select a poll</option>';
+        polls.forEach(function (p) {
+            var opt = document.createElement('option');
+            opt.value = p.id.toString();
+            opt.textContent = p.question;
+            pd.appendChild(opt);
         });
+    });
 }
-
 function createPoll() {
-    const question = document.getElementById('question').value;
-    const options = Array.from(document.getElementsByClassName('option'), input => input.value);
+    var qi = document.getElementById('question');
+    var q = qi.value;
+    var opts = Array.from(document.getElementsByClassName('option'), function (inp) { return inp.value; });
     fetch('/polls', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, options })
+        body: JSON.stringify({ question: q, options: opts })
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        loadPolls();  // Refresh the polls list after creating a new poll
+        .then(function (resp) { return resp.json(); })
+        .then(function () {
+        loadPolls();
     });
 }
-
-function loadPollOptions(pollId) {
-    fetch(`/polls/${pollId}/options`)
-        .then(response => response.json())
-        .then(options => {
-            const optionsContainer = document.getElementById('voteOptions');
-            optionsContainer.innerHTML = '';
-            options.forEach(option => {
-                const label = document.createElement('label');
-                const optionInput = document.createElement('input');
-                optionInput.type = 'radio';
-                optionInput.name = 'voteOption';
-                optionInput.value = option.id;
-
-                label.appendChild(optionInput);
-                label.appendChild(document.createTextNode(option.text));
-                optionsContainer.appendChild(label);
-                optionsContainer.appendChild(document.createElement('br'));
-            });
+function loadPollOptions(pid) {
+    fetch("/polls/".concat(pid, "/options"))
+        .then(function (resp) { return resp.json(); })
+        .then(function (opts) {
+        var optCont = document.getElementById('voteOptions');
+        optCont.innerHTML = '';
+        opts.forEach(function (opt) {
+            var label = document.createElement('label');
+            var optInput = document.createElement('input');
+            optInput.type = 'radio';
+            optInput.name = 'voteOption';
+            optInput.value = opt.id.toString();
+            label.appendChild(optInput);
+            label.appendChild(document.createTextNode(opt.text));
+            optCont.appendChild(label);
+            optCont.appendChild(document.createElement('br'));
         });
+    });
 }
-
 function submitVote() {
-    const pollId = document.getElementById('pollsDropdown').value;
-    const selectedOption = document.querySelector('input[name="voteOption"]:checked');
-    if (selectedOption) {
-        fetch(`/polls/${pollId}/vote`, {
+    var pd = document.getElementById('pollsDropdown');
+    var pid = parseInt(pd.value);
+    var selOpt = document.querySelector('input[name="voteOption"]:checked');
+    if (selOpt) {
+        fetch("/polls/".concat(pid, "/vote"), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ optionId: selectedOption.value })
+            body: JSON.stringify({ optionId: parseInt(selOpt.value) })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
             alert('Vote submitted!');
         });
-    } else {
+    }
+    else {
         alert('You must select an option to vote!');
     }
 }
-
 function showResults() {
-    const pollId = document.getElementById('pollsDropdown').value;
-    fetch(`/polls/${pollId}/results`)
-        .then(response => {
-            if (response.ok && response.headers.get("Content-Type").includes("application/json")) {
-                return response.json();
+    var pd = document.getElementById('pollsDropdown');
+    if (pd) {
+        var pid = pd.value;
+        fetch("/polls/".concat(pid, "/results"))
+            .then(function (resp) {
+            var _a;
+            if (resp.ok && ((_a = resp.headers.get("Content-Type")) === null || _a === void 0 ? void 0 : _a.includes("application/json"))) {
+                return resp.json();
             }
             throw new Error('Invalid response format');
         })
-        .then(results => {
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.innerHTML = '';
-            results.forEach(result => {
-                const resultDiv = document.createElement('div');
-                resultDiv.textContent = `${result.text}: ${result.votes} votes`;
-                resultsContainer.appendChild(resultDiv);
-            });
-        })
-        .catch(error => {
+            .then(function (data) {
+            var resCont = document.getElementById('resultsContainer');
+            resCont.innerHTML = '';
+            if ('message' in data) {
+                resCont.textContent = data.message;
+            }
+            else {
+                data.forEach(function (r) {
+                    var resDiv = document.createElement('div');
+                    resDiv.textContent = "".concat(r.text, ": ").concat(r.votes, " votes");
+                    resCont.appendChild(resDiv);
+                });
+            }
+        })["catch"](function (error) {
             console.error('Error loading the results:', error);
             alert('Failed to load results: ' + error.message);
         });
+    }
 }

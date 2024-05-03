@@ -14,8 +14,8 @@
             <input type="text" class="option" placeholder="Option 1">
             <input type="text" class="option" placeholder="Option 2">
         </div>
-        <button onclick="addOption()">Add Option</button>
-        <button onclick="createPoll()">Create Poll</button>
+        <button id="addOptionButton">Add Option</button>
+        <button id="createPollButton">Create Poll</button>
     </div>
 
     <div id="voteSection">
@@ -26,12 +26,12 @@
         <div id="voteOptions" style="margin-top: 20px;">
             <!-- Voting options will dynamically appear here -->
         </div>
-        <button onclick="submitVote()">Submit Vote</button>
+        <button id="submitVoteButton">Submit Vote</button>
     </div>
 
     <div id="resultsSection">
         <h2>Results</h2>
-        <button onclick="showResults()">Show Results</button>
+        <button id="showResultsButton">Show Results</button>
         <div id="resultsContainer">
             <!-- Results will dynamically appear here -->
         </div>

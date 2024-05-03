@@ -1,17 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+import fs from 'fs';
+import path from 'path';
+import sqlite3 from 'sqlite3';
 
 const dbPath = path.join(__dirname, '../voting.db');
 
-// 데이터베이스 파일 삭제
 if (fs.existsSync(dbPath)) {
     fs.unlinkSync(dbPath);
     console.log('Database reset successfully.');
 }
 
-// 데이터베이스 및 테이블 재생성
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, (err: Error | null) => {
     if (err) {
         console.error('Error opening database', err.message);
         return;
